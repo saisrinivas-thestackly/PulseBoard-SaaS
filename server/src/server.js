@@ -35,14 +35,9 @@ const limiter = rateLimit({
 })
 
 app.disable('x-powered-by')
-app.use(cors({ 
+app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
-      'https://pulse-board-4cael7iyp-saisrinivas-thestackly.vercel.app',
-      'https://pulse-board-i3df7gne8-saisrinivas-thestackly.vercel.app',
-      'https://pulse-board-denyyz4pz-saisrinivas-thestackly.vercel.app',
-      'https://pulse-board-198vy6qvt-saisrinivas-thestackly.vercel.app',
-      'https://pulseboard-saas-1.onrender.com',
       clientUrl,
       'http://localhost:5173',
       'http://localhost:3000'
@@ -52,8 +47,8 @@ app.use(cors({
     } else {
       callback(new Error('Not allowed by CORS'))
     }
-  }, 
-  credentials: true 
+  },
+  credentials: true
 }))
 app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
