@@ -3,11 +3,14 @@ import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import projectRoutes from './routes/projects.js'
 import dashboardRoutes from './routes/dashboard.js'
 import rateLimit from 'express-rate-limit'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const port = Number(process.env.PORT || 5000)
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
@@ -60,20 +63,20 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }))
 app.use('/api/auth', authRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/projects', projectRoutes)
-app.use((req, res) => res.status(404).json({ message: 'Route not found' }))
+
+app.use(express.static(path.join(__dirname, '../../client/dist')))
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../client/dist/index.html'))
+})
+
 app.use((err, _req, res, _next) => res.status(err.status || 500).json({ message: err.status ? err.message : 'Internal server error' }))
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
-  if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => console.log(`PulseBoard API running on port ${port}`))
-  } else {
-    console.log('PulseBoard API ready (Vercel serverless function)')
-  }
+  app.listen(port, () => console.log(`PulseBoard API running on port ${port}`))
 }).catch(error => {
   console.error('MongoDB connection failed', error.message)
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1)
-  }
+  process.exit(1)
 })
 
 export default app
