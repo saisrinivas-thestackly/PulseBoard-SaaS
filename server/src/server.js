@@ -3,14 +3,11 @@ import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import projectRoutes from './routes/projects.js'
 import dashboardRoutes from './routes/dashboard.js'
 import rateLimit from 'express-rate-limit'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 app.set('trust proxy', 1)
 const port = Number(process.env.PORT || 5000)
@@ -45,6 +42,7 @@ app.use(cors({
       'https://pulse-board-i3df7gne8-saisrinivas-thestackly.vercel.app',
       'https://pulse-board-denyyz4pz-saisrinivas-thestackly.vercel.app',
       'https://pulse-board-198vy6qvt-saisrinivas-thestackly.vercel.app',
+      'https://pulseboard-saas-1.onrender.com',
       clientUrl,
       'http://localhost:5173',
       'http://localhost:3000'
@@ -64,13 +62,7 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }))
 app.use('/api/auth', authRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/projects', projectRoutes)
-
-app.use(express.static(path.join(__dirname, '../../client/dist')))
-
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../../client/dist/index.html'))
-})
-
+app.use((req, res) => res.status(404).json({ message: 'Route not found' }))
 app.use((err, _req, res, _next) => res.status(err.status || 500).json({ message: err.status ? err.message : 'Internal server error' }))
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
