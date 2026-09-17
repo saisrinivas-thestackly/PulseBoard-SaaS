@@ -12,6 +12,7 @@ import rateLimit from 'express-rate-limit'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
+app.set('trust proxy', 1)
 const port = Number(process.env.PORT || 5000)
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
 
